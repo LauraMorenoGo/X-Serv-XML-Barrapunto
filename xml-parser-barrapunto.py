@@ -14,6 +14,10 @@
 from xml.sax.handler import ContentHandler
 from xml.sax import make_parser
 import sys
+import string
+
+def normalize_whitespace(text):
+    return string.join(string.split(text), ' ')
 
 class myContentHandler(ContentHandler):
 
@@ -21,6 +25,10 @@ class myContentHandler(ContentHandler):
         self.inItem = False
         self.inContent = False
         self.theContent = ""
+        self.fichero = open("noticias.html", "w")
+        self.link = ""
+        self.title = ""
+        self.noticia = ""
 
     def startElement (self, name, attrs):
         if name == 'item':
@@ -28,6 +36,7 @@ class myContentHandler(ContentHandler):
         elif self.inItem:
             if name == 'title':
                 self.inContent = True
+                self.title = self.theContent
             elif name == 'link':
                 self.inContent = True
             
@@ -36,13 +45,13 @@ class myContentHandler(ContentHandler):
             self.inItem = False
         elif self.inItem:
             if name == 'title':
-                line = "Title: " + self.theContent + "."
-                # To avoid Unicode trouble
-                print (line.encode('utf-8')) 
+                self.title = normalize_whitespace(self.theContent)
                 self.inContent = False
                 self.theContent = ""
             elif name == 'link':
-                print (" Link: " + self.theContent + ".")
+                self.link = normalize_whitespace(self.theContent)			
+                self.noticia = "<li>Titulo <a href=" + self.link + ">" + self.title + "</a></li>"
+                self.fichero.write(self.noticia)		
                 self.inContent = False
                 self.theContent = ""
 
@@ -54,7 +63,6 @@ class myContentHandler(ContentHandler):
 
 if len(sys.argv)<2:
     print ("Usage: python xml-parser-barrapunto.py <document>")
-    print
     print (" <document>: file name of the document to parse")
     sys.exit(1)
     
