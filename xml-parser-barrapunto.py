@@ -17,7 +17,8 @@ import sys
 import string
 
 def normalize_whitespace(text):
-    return string.join(string.split(text), ' ')
+    string = ""
+    return string.join(text)
 
 class myContentHandler(ContentHandler):
 
